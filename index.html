@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🔥 PyFire Web Demo</title>
+    <style>
+        body { background: #1a1a1a; color: #ff4500; font-family: monospace; text-align: center; padding: 20px; }
+        #fire-animation { font-size: 16px; line-height: 1.2; margin: 20px auto; animation: flicker 1.5s infinite; }
+        .controls { margin: 20px; }
+        input, button { padding: 8px; font-size: 16px; margin: 5px; }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+    <h1>🔥 PyFire Web Demo</h1>
+    <pre id="fire-animation"></pre>
+    <div class="controls">
+        <label for="speed">Speed (ms):</label>
+        <input type="range" id="speed" min="100" max="1000" value="500">
+        <label for="color">Flame Color:</label>
+        <input type="color" id="color" value="#ff4500">
+        <button onclick="copyCode()">Copy Code</button>
+    </div>
+    <p>pip install pypfire for the Python version! <a href="https://github.com/dragonaitrini-booM/pypfire">GitHub</a></p>
+    <script>
+        const fireAnimationElement = document.getElementById('fire-animation');
+        const speedSlider = document.getElementById('speed');
+        const colorPicker = document.getElementById('color');
+        const frames = [` ***\n*****\n*******\n*********\n*********** `.trim(), ` ***\n*****\n*******\n*********\n*********** \n FLAME `.trim()];
+        let frameIndex = 0;
+        let speed = 500;
+        function animateFire() {
+            fireAnimationElement.textContent = frames[frameIndex];
+            fireAnimationElement.style.color = colorPicker.value;
+            frameIndex = (frameIndex + 1) % frames.length;
+            setTimeout(animateFire, speed);
+        }
+        speedSlider.addEventListener('input', () => { speed = parseInt(speedSlider.value); });
+        colorPicker.addEventListener('input', () => { fireAnimationElement.style.color = colorPicker.value; });
+        function copyCode() { navigator.clipboard.writeText(`pip install pypfire`); alert('Copied: pip install pypfire'); }
+        animateFire();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🔥 PyFire Web Demo</title>
+    <style>
+        body { background: #1a1a1a; color: #ff4500; font-family: monospace; text-align: center; padding: 20px; }
+        #fire-animation { font-size: 16px; line-height: 1.2; margin: 20px auto; animation: flicker 1.5s infinite; }
+        .controls { margin: 20px; }
+        input, button { padding: 8px; font-size: 16px; margin: 5px; }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+    <h1>🔥 PyFire Web Demo</h1>
+    <pre id="fire-animation"></pre>
+    <div class="controls">
+        <label for="speed">Speed (ms):</label>
+        <input type="range" id="speed" min="100" max="1000" value="500">
+        <label for="color">Flame Color:</label>
+        <input type="color" id="color" value="#ff4500">
+        <button onclick="copyCode()">Copy Code</button>
+    </div>
+    <p>pip install pypfire for the Python version! <a href="https://github.com/dragonaitrini-booM/pypfire">GitHub</a></p>
+    <script>
+        const fireAnimationElement = document.getElementById('fire-animation');
+        const speedSlider = document.getElementById('speed');
+        const colorPicker = document.getElementById('color');
+        const frames = [` ***\n*****\n*******\n*********\n*********** `.trim(), ` ***\n*****\n*******\n*********\n*********** \n FLAME `.trim()];
+        let frameIndex = 0;
+        let speed = 500;
+        function animateFire() {
+            fireAnimationElement.textContent = frames[frameIndex];
+            fireAnimationElement.style.color = colorPicker.value;
+            frameIndex = (frameIndex + 1) % frames.length;
+            setTimeout(animateFire, speed);
+        }
+        speedSlider.addEventListener('input', () => { speed = parseInt(speedSlider.value); });
+        colorPicker.addEventListener('input', () => { fireAnimationElement.style.color = colorPicker.value; });
+        function copyCode() { navigator.clipboard.writeText(`pip install pypfire`); alert('Copied: pip install pypfire'); }
+        animateFire();
+    </script>
+</body>
+</html>
