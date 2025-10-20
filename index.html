@@ -1,87 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<he  <meta charset="UTF-8">
     <title>🔥 PyFire Web Demo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <style>
-        body { background: #1a1a1a; color: #ff4500; font-family: monospace; text-align: center; padding: 20px; }
-        #fire-animation { font-size: 16px; line-height: 1.2; margin: 20px auto; animation: flicker 1.5s infinite; }
-        .controls { margin: 20px; }
-        input, button { padding: 8px; font-size: 16px; margin: 5px; }
-        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body {
+            background: #1a1a1a;
+            color: #ff4500;
+            font-family: monospace;
+            text-align: center;
+            padding: 20px;
+        }
+        #fire-animation {
+            font-size: 16px;
+            line-height: 1.2;
+            margin: 20px auto;
+            animation: flicker 1.5s infinite;
+            white-space: pre; /* Preserve whitespace and newlines */
+            text-align: left; /* Align text to the left within the pre tag */
+            max-width: 100%;
+            overflow:auto;
+            display:block;
+        }
+        .controls {
+            margin: 20px;
+        }
+        input, button {
+            padding: 8px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
     </style>
 </head>
 <body>
     <h1>🔥 PyFire Web Demo</h1>
-    <pre id="fire-animation"></pre>
+    <pre id="fire-animation" aria-live="polite" aria-atomic="true"></pre>
     <div class="controls">
         <label for="speed">Speed (ms):</label>
-        <input type="range" id="speed" min="100" max="1000" value="500">
+        <input type="range" id="speed" min="10" max="200" value="50"> <!-- Adjusted speed range -->
         <label for="color">Flame Color:</label>
         <input type="color" id="color" value="#ff4500">
-        <button onclick="copyCode()">Copy Code</button>
     </div>
-    <p>pip install pypfire for the Python version! <a href="https://github.com/dragonaitrini-booM/pypfire">GitHub</a></p>
+
     <script>
-        const fireAnimationElement = document.getElementById('fire-animation');
-        const speedSlider = document.getElementById('speed');
-        const colorPicker = document.getElementById('color');
-        const frames = [` ***\n*****\n*******\n*********\n*********** `.trim(), ` ***\n*****\n*******\n*********\n*********** \n FLAME `.trim()];
-        let frameIndex = 0;
-        let speed = 500;
-        function animateFire() {
-            fireAnimationElement.textContent = frames[frameIndex];
-            fireAnimationElement.style.color = colorPicker.value;
-            frameIndex = (frameIndex + 1) % frames.length;
-            setTimeout(animateFire, speed);
-        }
-        speedSlider.addEventListener('input', () => { speed = parseInt(speedSlider.value); });
-        colorPicker.addEventListener('input', () => { fireAnimationElement.style.color = colorPicker.value; });
-        function copyCode() { navigator.clipboard.writeText(`pip install pypfire`); alert('Copied: pip install pypfire'); }
-        animateFire();
+        (function() {
+            const fireAnimationElement = document.getElementById('fire-animation');
+            const speedControl = document.getElementById('speed');
+            const colorControl = document.getElementById('color');
+
+            let fireWidth = 40; // Adjust width as needed
+            let fireHeight = 20; // Adjust height as needed
+            // create as typed array for small perf gain
+            let fire = new Uint8Array(fireWidth * fireHeight);
+            const fireChars = "      .:-i+r*$#%@"; // Characters for fire intensity
+
+            function initFire() {
+                fireWidth = Math.max(8, Math.min(120, fireWidth));
+                fireHeight = Math.max(4, Math.min(64, fireHeight));
+                fire = new Uint8Array(fireWidth * fireHeight);
+                for (let i = 0; i < fire.length; i++) fire[i] = 0;
+            }
+
+            function updateFire() {
+                // spread upward
+                for (let x = 0; x < fireWidth; x++) {
+                    for (let y = fireHeight - 1; y > 0; y--) {
+                        const src = y * fireWidth + x;
+                        // random horizontal offset -1,0,1
+                        const offset = (Math.random() * 3 - 1) | 0;
+                        const dstX = Math.max(0, Math.min(fireWidth - 1, x + offset));
+                        const dst = (y - 1) * fireWidth + dstX;
+                        const decay = (Math.random() * 5) | 0;
+                        fire[dst] = Math.max(0, fire[src] - decay);
+                    }
+                }
+
+                // bottom heat
+                const maxIdx = fireChars.length - 1;
+                const bottomRow = (fireHeight - 1) * fireWidth;
+                for (let x = 0; x < fireWidth; x++) {
+                    const r = (Math.random() * 10) | 0;
+                    fire[bottomRow + x] = Math.max(0, Math.min(maxIdx, maxIdx - r));
+                }
+
+                // render
+                let out = "";
+                for (let i = 0; i < fire.length; i++) {
+                    out += fireChars[Math.min(fireChars.length - 1, fire[i])] || ' ';
+                    if ((i + 1) % fireWidth === 0) out += "\n";
+                }
+                fireAnimationElement.textContent = out;
+            }
+
+            // interval controller
+            let intervalId = null;
+            function startInterval() {
+                stopInterval();
+                const ms = Math.max(8, parseInt(speedControl.value, 10) || 50);
+                intervalId = setInterval(updateFire, ms);
+            }
+            function stopInterval() {
+                if (intervalId !== null) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+            }
+
+            // events
+            speedControl.addEventListener('input', () => startInterval());
+            colorControl.addEventListener('input', (e) => {
+                fireAnimationElement.style.color = e.target.value;
+            });
+
+            // initialize
+            initFire();
+            fireAnimationElement.style.color = colorControl.value;
+            startInterval();
+
+            // expose simple keyboard shortcuts
+            window.addEventListener('keydown', (e) => {
+                if (e.key === ' ') { // space to toggle
+                    if (intervalId) stopInterval(); else startInterval();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    fireHeight = Math.min(64, fireHeight + 1); initFire();
+                } else if (e.key === 'ArrowDown') {
+                    fireHeight = Math.max(4, fireHeight - 1); initFire();
+                }
+            });
+        })();
     </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>🔥 PyFire Web Demo</title>
-    <style>
-        body { background: #1a1a1a; color: #ff4500; font-family: monospace; text-align: center; padding: 20px; }
-        #fire-animation { font-size: 16px; line-height: 1.2; margin: 20px auto; animation: flicker 1.5s infinite; }
-        .controls { margin: 20px; }
-        input, button { padding: 8px; font-size: 16px; margin: 5px; }
-        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    </style>
-</head>
-<body>
-    <h1>🔥 PyFire Web Demo</h1>
-    <pre id="fire-animation"></pre>
-    <div class="controls">
-        <label for="speed">Speed (ms):</label>
-        <input type="range" id="speed" min="100" max="1000" value="500">
-        <label for="color">Flame Color:</label>
-        <input type="color" id="color" value="#ff4500">
-        <button onclick="copyCode()">Copy Code</button>
-    </div>
-    <p>pip install pypfire for the Python version! <a href="https://github.com/dragonaitrini-booM/pypfire">GitHub</a></p>
-    <script>
-        const fireAnimationElement = document.getElementById('fire-animation');
-        const speedSlider = document.getElementById('speed');
-        const colorPicker = document.getElementById('color');
-        const frames = [` ***\n*****\n*******\n*********\n*********** `.trim(), ` ***\n*****\n*******\n*********\n*********** \n FLAME `.trim()];
-        let frameIndex = 0;
-        let speed = 500;
-        function animateFire() {
-            fireAnimationElement.textContent = frames[frameIndex];
-            fireAnimationElement.style.color = colorPicker.value;
-            frameIndex = (frameIndex + 1) % frames.length;
-            setTimeout(animateFire, speed);
-        }
-        speedSlider.addEventListener('input', () => { speed = parseInt(speedSlider.value); });
-        colorPicker.addEventListener('input', () => { fireAnimationElement.style.color = colorPicker.value; });
-        function copyCode() { navigator.clipboard.writeText(`pip install pypfire`); alert('Copied: pip install pypfire'); }
-        animateFire();
-    </script>
+
 </body>
 </html>
