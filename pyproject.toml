@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypfire"
+version = "0.1.0"
+description = "Breathing fire terminal animations for developers"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "dragonaitrini-booM", email = "you@example.com"}]
+requires-python = ">=3.8"
+keywords = ["cli", "animation", "terminal", "fire", "ascii"]
+
+[project.scripts]
+pypfire = "pypfire.cli:main"[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypfire"
+version = "0.1.0"
+description = "Breathing fire terminal animations for developers"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "dragonaitrini-booM", email = "you@example.com"}]
+requires-python = ">=3.8"
+keywords = ["cli", "animation", "terminal", "fire", "ascii"]
+
+[project.scripts]
+pypfire = "pypfire.cli:main"
